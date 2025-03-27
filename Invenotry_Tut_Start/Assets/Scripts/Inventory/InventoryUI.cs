@@ -1,49 +1,43 @@
 using UnityEngine;
 
-/* This object updates the inventory UI. */
+public class InventoryUI : MonoBehaviour
+{
 
-public class InventoryUI : MonoBehaviour {
+	public Transform itemsParent;
+	public GameObject inventoryUI;
 
-	public Transform itemsParent;	// The parent object of all the items
-	public GameObject inventoryUI;	// The entire UI
+	Inventory inventory;
 
-	Inventory inventory;	// Our current inventory
+	InventorySlot[] slots;
 
-	InventorySlot[] slots;	// List of all the slots
 
-	void Start () {
-		inventory = Inventory.instance;
-		inventory.onItemChangedCallback += UpdateUI;	// Subscribe to the onItemChanged callback
-
-		// Populate our slots array
-		slots = itemsParent.GetComponentsInChildren<InventorySlot>();
-	}
-	
-	void Update () {
-		// Check to see if we should open/close the inventory
-		if (Input.GetButtonDown("Inventory"))
+	void UpdateUI()
+	{
+		for (int i = 0; i < slots.Length; i++)
 		{
-			inventoryUI.SetActive(!inventoryUI.activeSelf);
+			if (i < inventory.items.Count)
+			{
+				slots[i].AddItem(inventory.items[i]);
+			}
+			else
+			{
+				slots[i].ClearSlot();
+			}
 		}
 	}
 
-	// Update the inventory UI by:
-	//		- Adding items
-	//		- Clearing empty slots
-	// This is called using a delegate on the Inventory.
-	void UpdateUI ()
+	void Start()
 	{
-		// Loop through all the slots
-		for (int i = 0; i < slots.Length; i++)
+		inventory = Inventory.instance;
+		inventory.onItemChangedCallback += UpdateUI;
+		slots = itemsParent.GetComponentsInChildren<InventorySlot>();
+	}
+
+	void Update()
+	{
+		if (Input.GetButtonDown("Inventory"))
 		{
-			if (i < inventory.items.Count)	// If there is an item to add
-			{
-				slots[i].AddItem(inventory.items[i]);	// Add it
-			} else
-			{
-				// Otherwise clear the slot
-				slots[i].ClearSlot();
-			}
+			inventoryUI.SetActive(!inventoryUI.activeSelf);
 		}
 	}
 }
